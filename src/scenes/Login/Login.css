@@ -1,0 +1,14 @@
+.container{
+    padding: 10px;
+    border: 2px lightgray solid;
+    border-radius: 5px;
+}
+
+.container .row:first-child{
+    border-bottom: 2px lightgray solid;
+    margin-bottom: 10px;
+}
+
+.container .row:last-child{
+    margin-top: 10px;
+}

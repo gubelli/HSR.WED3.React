@@ -1,22 +1,22 @@
 // @flow
 
-import React from "react";
+import React from 'react';
 import {
   BrowserRouter as Router,
   Route,
   Link,
-  withRouter
-} from "react-router-dom";
+  withRouter,
+} from 'react-router-dom';
 
-import Home from "./components/Home";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
+import Home from './scenes/Home/Home';
+import Login from './scenes/Login/Login';
+import Signup from './scenes/Signup/Signup';
 
-import PrivateRoute from "./components/PrivateRoute";
+import PrivateRoute from './services/PrivateRoute';
 
-import * as api from "./api";
+import * as api from './services/api';
 
-import type { User } from "./api";
+import type {User} from './services/api';
 
 // TODO: Move to own files
 const AllTransactions = () => <div />;
@@ -25,25 +25,25 @@ const Dashboard = () => <div />;
 type State = {
   isAuthenticated: boolean,
   token: ?string,
-  user: ?User
+  user: ?User,
 };
 
 class App extends React.Component<{}, State> {
-  constructor(props: any) {
-    super(props);
-    const token = sessionStorage.getItem("token");
-    const user = sessionStorage.getItem("user");
+  constructor (props: any) {
+    super (props);
+    const token = sessionStorage.getItem ('token');
+    const user = sessionStorage.getItem ('user');
     if (token && user) {
       this.state = {
         isAuthenticated: true,
         token,
-        user: JSON.parse(user)
+        user: JSON.parse (user),
       };
     } else {
       this.state = {
         isAuthenticated: false,
         token: undefined,
-        user: undefined
+        user: undefined,
       };
     }
   }
@@ -51,34 +51,34 @@ class App extends React.Component<{}, State> {
   authenticate = (
     login: string,
     password: string,
-    cb: (error: ?Error) => void
+    cb:  (error: ?Error) => void
   ) => {
     api
-      .login(login, password)
-      .then(({ token, owner }) => {
-        this.setState({ isAuthenticated: true, token, user: owner });
-        sessionStorage.setItem("token", token);
-        sessionStorage.setItem("user", JSON.stringify(owner));
-        cb(null);
+      .login (login, password)
+      .then (({token, owner}) => {
+        this.setState ({isAuthenticated: true, token, user: owner});
+        sessionStorage.setItem ('token', token);
+        sessionStorage.setItem ('user', JSON.stringify (owner));
+        cb (null);
       })
-      .catch(error => cb(error));
+      .catch (error => cb (error));
   };
 
-  signout = (callback: () => void) => {
-    this.setState({
+  signout = (callback:  () => void) => {
+    this.setState ({
       isAuthenticated: false,
       token: undefined,
-      user: undefined
+      user: undefined,
     });
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-    callback();
+    sessionStorage.removeItem ('token');
+    sessionStorage.removeItem ('user');
+    callback ();
   };
 
-  render() {
-    const { isAuthenticated, user, token } = this.state;
+  render () {
+    const {isAuthenticated, user, token} = this.state;
 
-    const MenuBar = withRouter(({ history, location: { pathname } }) => {
+    const MenuBar = withRouter (({history, location: {pathname}}) => {
       if (isAuthenticated && user) {
         return (
           <nav>
@@ -92,8 +92,8 @@ class App extends React.Component<{}, State> {
             <a
               href="/logout"
               onClick={event => {
-                event.preventDefault();
-                this.signout(() => history.push("/"));
+                event.preventDefault ();
+                this.signout (() => history.push ('/'));
               }}
             >
               Logout {user.firstname} {user.lastname}

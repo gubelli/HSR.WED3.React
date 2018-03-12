@@ -4,7 +4,7 @@ import React from 'react';
 import {Redirect} from 'react-router-dom';
 import {Input, Button} from 'reactstrap';
 
-import {signup} from '../api';
+import {signup} from '../../services/api';
 
 class Signup extends React.Component<{}, *> {
   state = {
