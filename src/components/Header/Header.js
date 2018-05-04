@@ -17,7 +17,7 @@ class Header extends React.Component<{}, *> {
           </Nav>
           <Nav className="ml-auto" navbar>
             <NavItem>
-              <Button color="primary" href="/signup">Register</Button>
+              <Button color="primary" href="/signup">Registrieren</Button>
             </NavItem>
           </Nav>
         </Navbar>
