@@ -13,7 +13,7 @@ type State = {
 class Payment extends React.Component<{}, State> {
     constructor (props: any) {
         super(props);
-        const token = sessionStorage.getItem ('token');
+        const token = localStorage.getItem ('token');
         this.state = {
             token: token,
             account: {
