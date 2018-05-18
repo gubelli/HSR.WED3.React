@@ -7,7 +7,6 @@ import {
     withRouter,
 } from 'react-router-dom';
 
-import Home from './scenes/Home/Home';
 import Login from './scenes/Login/Login';
 import Signup from './scenes/Signup/Signup';
 
@@ -15,14 +14,16 @@ import PrivateRoute from './services/PrivateRoute';
 
 import * as api from './services/api';
 
+import './App.css';
+
 import type {User} from './services/api';
-import {Button, Nav, Navbar, NavbarBrand, NavItem} from "reactstrap";
+import {Button, Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem} from "reactstrap";
 import NavLink from "react-router-dom/es/NavLink";
-import Dashboard from "./components/Dashboard/Dashboard";
+import Dashboard from "./scenes/Dashboard/Dashboard";
+import {Redirect} from "react-router";
 
 // TODO: Move to own files
 const AllTransactions = () => <div />;
-//const Dashboard = () => <div><p>Hallo Welt</p></div>;
 
 type State = {
     isAuthenticated: boolean,
@@ -48,6 +49,9 @@ class App extends React.Component<{}, State> {
                 user: undefined,
             };
         }
+        this.state = {
+            collapsed: true
+        };
     }
 
     authenticate = (
@@ -77,39 +81,27 @@ class App extends React.Component<{}, State> {
         callback ();
     };
 
+    toggleNavbar= () => {
+        this.setState({
+            collapsed: !this.state.collapsed
+        });
+    };
+
     render () {
-        const {isAuthenticated, user, token} = this.state;
+        const {isAuthenticated, user, token, collapsed} = this.state;
 
         const MenuBar = withRouter (({history, location: {pathname}}) => {
             if (isAuthenticated && user) {
                 return (
-                    /*<nav>
-                      <span>
-                        {user.firstname} {user.lastname} &ndash; {user.accountNr}
-                      </span>
-                      {}
-                      <Link to="/">Home</Link>
-                      <Link to="/dashboard">Kontoübersicht</Link>
-                      <Link to="/transactions">Zahlungen</Link>
-                      <a
-                        href="/logout"
-                        onClick={event => {
-                          event.preventDefault ();
-                          this.signout (() => history.push ('/'));
-                        }}
-                      >
-                        Logout {user.firstname} {user.lastname}
-                      </a>
-                    </nav>*/
                     <div>
-                        <Navbar dark expand="md">
-                            <NavbarBrand href="/dashboard">WED3 Testat</NavbarBrand>
+                        <Navbar color="faded" light expand="md">
+                            <NavbarBrand>WED3 Testat</NavbarBrand>
+                            <NavbarToggler onClick={this.toggleNavbar} />
+                            <Collapse isOpen={!collapsed} navbar>
                             <Nav>
                                 <NavItem>
                                     <NavLink to="/dashboard">Home</NavLink>
                                 </NavItem>
-                            </Nav>
-                            <Nav>
                                 <NavItem>
                                     <NavLink to="/transactions">Account Transactions</NavLink>
                                 </NavItem>
@@ -122,11 +114,31 @@ class App extends React.Component<{}, State> {
                                     }}>Logout {user.firstname} {user.lastname}</Button>
                                 </NavItem>
                             </Nav>
+                            </Collapse>
                         </Navbar>
                     </div>
                 );
             } else {
-                return null;
+               return (
+                   <div>
+                       <Navbar color="faded" light expand="md">
+                           <NavbarBrand>WED3 Testat</NavbarBrand>
+                           <NavbarToggler onClick={this.toggleNavbar} />
+                           <Collapse isOpen={!collapsed} navbar>
+                           <Nav>
+                               <NavItem>
+                                   <NavLink to="/welcome/">Home</NavLink>
+                               </NavItem>
+                           </Nav>
+                           <Nav className="ml-auto" navbar>
+                               <NavItem>
+                                   <Button color="primary" href="/signup">Registrieren</Button>
+                               </NavItem>
+                           </Nav>
+                           </Collapse>
+                       </Navbar>
+                   </div>
+               );
             }
         });
 
@@ -137,17 +149,21 @@ class App extends React.Component<{}, State> {
                     <Route
                         exact
                         path="/"
-                        render={props => (
-                            <Home {...props} isAuthenticated={isAuthenticated} />
-                        )}
-                    />
+                        render={() => (
+                        isAuthenticated ? ( <Redirect to="/dashboard"/> ) : ( <Redirect to="/welcome"/> )
+                    )}/>
                     <Route
-                        path="/login"
+                        path="/welcome"
                         render={props => (
                             <Login {...props} authenticate={this.authenticate} />
                         )}
                     />
-                    <Route path="/signup" component={Signup} />
+                    <Route
+                        path="/signup"
+                        render={props => (
+                            <Signup {...props} authenticate={this.authenticate} />
+                        )}
+                    />
                     {/*
             The following are protected routes that are only available for logged-in users. We also pass the user and token so 
             these components can do API calls. PrivateRoute is not part of react-router but our own implementation.

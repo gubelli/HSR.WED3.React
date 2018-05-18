@@ -27,6 +27,13 @@ export type Transaction = {
   date: string
 };
 
+export type Account = {
+    ownerId?: string,
+    accountNr?: string,
+    amount: number,
+    owner: User
+}
+
 /* Use the exported functions to call the API. 
  * If necessary, adapt the backend address below:
  */
@@ -56,7 +63,7 @@ export function signup(
 
 export function getAccountDetails(
   token: string
-): Promise<{ accountNr: string, amount: number, owner: User }> {
+): Promise<Account> {
   return getAuthenticatedJson(`/accounts`, token).then(parseJSON);
 }
 

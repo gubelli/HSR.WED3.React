@@ -2,94 +2,187 @@
 
 import React from 'react';
 import {Redirect} from 'react-router-dom';
-import {Input, Button} from 'reactstrap';
+import {
+    Input,
+    Button,
+    Alert,
+    FormGroup,
+    FormFeedback,
+    Row,
+    Col,
+    Form,
+    Label,
+    Container,
+    Card,
+    CardHeader, CardBody
+} from 'reactstrap';
 
 import {signup} from '../../services/api';
+import './Signup.css';
 
 class Signup extends React.Component<{}, *> {
-  state = {
-    login: '',
-    firstname: '',
-    lastname: '',
-    password: '',
-    error: null,
-    redirectToReferrer: false,
-  };
+    state = {
+        login: '',
+        firstname: '',
+        lastname: '',
+        password: '',
+        passwordConfirmation: '',
+        error: null,
+        redirectToReferrer: false,
+    };
 
-  handleLoginChanged = (event: Event) => {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState ({login: event.target.value});
+    handleLoginChanged = (event: Event) => {
+        if (event.target instanceof HTMLInputElement) {
+            this.setState ({login: event.target.value});
+        }
+    };
+
+    handleFirstNameChanged = (event: Event) => {
+        if (event.target instanceof HTMLInputElement) {
+            this.setState ({firstname: event.target.value});
+        }
+    };
+
+    handleLastNameChanged = (event: Event) => {
+        if (event.target instanceof HTMLInputElement) {
+            this.setState ({lastname: event.target.value});
+        }
+    };
+
+    handlePasswordChanged = (event: Event) => {
+        if (event.target instanceof HTMLInputElement) {
+            this.setState ({password: event.target.value});
+        }
+    };
+
+    handlePasswordConfirmationChanged = (event: Event) => {
+        if (event.target instanceof  HTMLInputElement) {
+            this.setState ({passwordConfirmation: event.target.value});
+        }
+    };
+
+    handleSubmit = (event: Event) => {
+        event.preventDefault ();
+        const {login, firstname, lastname, password} = this.state;
+        signup (login, firstname, lastname, password)
+            .then (() => {
+                this.props.authenticate (login, password, error => {
+                    if (error) {
+                        this.setState ({error});
+                    } else {
+                        this.setState ({redirectToReferrer: true, error: null});
+                    }
+                });
+            })
+            .catch (error => this.setState ({error}));
+    };
+
+
+    validate = (login: string, password: string, passwordConfirmation: string, firstname: string, lastname: string) => {
+        return {
+            login: login.length >= 3,
+            password: password.length >= 3,
+            passwordConfirmation: password && password === passwordConfirmation,
+            firstname: firstname.length >= 3,
+            lastname: lastname.length >= 3
+        };
+    };
+
+    render () {
+        const {redirectToReferrer, error} = this.state;
+
+        if (redirectToReferrer) {
+            return <Redirect to="/dashboard" />;
+        }
+
+        const errors = this.validate (
+            this.state.login,
+            this.state.password,
+            this.state.passwordConfirmation,
+            this.state.firstname,
+            this.state.lastname);
+
+        const formValid = errors.login & errors.password & errors.passwordConfirmation & errors.firstname & errors.lastname;
+
+        return (
+            <div>
+                <Container fluid>
+                    <Row>
+                        <Col>
+                            <Card>
+                                <CardHeader><h1>Welcome to the bank of Rapperswil</h1></CardHeader>
+                                <CardBody>
+                                    <Form>
+                                        <FormGroup>
+                                            <Label for="firstname">Firstname</Label>
+                                            <Input
+                                                onChange={this.handleFirstNameChanged}
+                                                placeholder="First name"
+                                                value={this.state.firstname}
+                                                invalid={!errors.firstname}
+                                            />
+                                            <FormFeedback>Please specify your first name.</FormFeedback>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="lastname">Lastname</Label>
+                                            <Input
+                                                onChange={this.handleLastNameChanged}
+                                                placeholder="Last name"
+                                                value={this.state.lastname}
+                                                invalid={!errors.lastname}
+                                            />
+                                            <FormFeedback>Please specify your last name.</FormFeedback>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="login">User name</Label>
+                                            <Input
+                                                onChange={this.handleLoginChanged}
+                                                placeholder="User"
+                                                value={this.state.login}
+                                                invalid={!errors.login}
+                                            />
+                                            <FormFeedback>Please specify your login, at least three characters.</FormFeedback>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="password">Password</Label>
+                                            <Input
+                                                onChange={this.handlePasswordChanged}
+                                                placeholder="Password"
+                                                type="password"
+                                                id="password"
+                                                value={this.state.password}
+                                                invalid={!errors.password}
+                                            />
+                                            <FormFeedback>Please specify your password, at least 3 characters</FormFeedback>
+                                        </FormGroup>
+                                        <FormGroup>
+                                            <Label for="confirmpassword">Confirm Password</Label>
+                                            <Input
+                                                onChange={this.handlePasswordConfirmationChanged}
+                                                placeholder="Password"
+                                                type="password"
+                                                id="confirmpassword"
+                                                value={this.state.passwordConfirmation}
+                                                invalid={!errors.passwordConfirmation}
+                                            />
+                                            <FormFeedback>Please confirm your password</FormFeedback>
+                                        </FormGroup>
+                                        <Button color="primary" onClick={this.handleSubmit} disabled={!formValid}>
+                                            Login
+                                        </Button>
+                                        {error &&
+                                        <Alert color="warning" error>
+                                            An error occurred!
+                                        </Alert>}
+                                    </Form>
+                                </CardBody>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Container>
+            </div>
+        );
     }
-  };
-
-  handleFirstNameChanged = (event: Event) => {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState ({firstname: event.target.value});
-    }
-  };
-
-  handleLastNameChanged = (event: Event) => {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState ({lastname: event.target.value});
-    }
-  };
-
-  handlePasswordChanged = (event: Event) => {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState ({password: event.target.value});
-    }
-  };
-
-  handleSubmit = (event: Event) => {
-    event.preventDefault ();
-    const {login, firstname, lastname, password} = this.state;
-    signup (login, firstname, lastname, password)
-      .then (result => {
-        console.log ('Signup result ', result);
-        this.setState ({redirectToReferrer: true, error: null});
-      })
-      .catch (error => this.setState ({error}));
-  };
-
-  render () {
-    const {redirectToReferrer, error} = this.state;
-
-    if (redirectToReferrer) {
-      return <Redirect to="/login" />;
-    }
-
-    return (
-      <div>
-        <h1>Bank of Rapperswil</h1>
-        <form>
-          <h2>Registrieren</h2>
-          <Input
-            onChange={this.handleLoginChanged}
-            placeholder="Login"
-            value={this.state.login}
-          />
-          <Input
-            onChange={this.handleFirstNameChanged}
-            placeholder="Vorname"
-            value={this.state.firstname}
-          />
-          <Input
-            onChange={this.handleLastNameChanged}
-            placeholder="Nachname"
-            value={this.state.lastname}
-          />
-          <Input
-            onChange={this.handlePasswordChanged}
-            placeholder="Passwort"
-            type="password"
-            value={this.state.password}
-          />
-          <Button onClick={this.handleSubmit}>Account eröffnen</Button>
-        </form>
-        {error && <p>Es ist ein Fehler aufgetreten!</p>}
-      </div>
-    );
-  }
 }
 
 export default Signup;

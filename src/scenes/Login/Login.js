@@ -3,19 +3,18 @@
 import React from 'react';
 import {Redirect} from 'react-router-dom';
 import {
-  Container,
-  Row,
-  Col,
-  Input,
-  Button,
-  Form,
-  FormGroup,
-  Label,
-  Alert,
-  FormFeedback,
+    Container,
+    Row,
+    Col,
+    Input,
+    Button,
+    Form,
+    FormGroup,
+    Label,
+    Alert,
+    FormFeedback, Card, CardHeader, CardBody
 } from 'reactstrap';
 import './Login.css';
-import Header from '../../components/Header/Header';
 
 export type Props = {
   /* Callback to submit an authentication request to the server */
@@ -65,12 +64,12 @@ class Login extends React.Component<Props, *> {
     });
   };
 
-  validate (login: string, password: string) {
+  validate = (login: string, password: string) => {
     return {
       login: login.length >= 3,
       password: password.length >= 3,
     };
-  }
+  };
 
   render () {
     const {from} = this.props.location.state || {
@@ -80,57 +79,54 @@ class Login extends React.Component<Props, *> {
 
     const errors = this.validate (this.state.login, this.state.password);
 
+    const formValid = errors.password & errors.login;
+
     if (redirectToReferrer) {
       return <Redirect to={from} />;
     }
 
     return (
       <div>
-        <Header />
-        <Container>
+        <Container fluid>
           <Row>
             <Col>
-              <h1>Welcome to the bank of Rapperswil</h1>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Form>
-                <FormGroup>
-                  <Label for="username">Username</Label>
-                  <Input
-                    onChange={this.handleLoginChanged}
-                    placeholder="Username"
-                    id="username"
-                    value={this.state.login}
-                    invalid={!errors.login}
-                  />
-                  <FormFeedback>At least 3 characters</FormFeedback>
-                </FormGroup>
-                <FormGroup>
-                  <Label for="password">Password</Label>
-                  <Input
-                    onChange={this.handlePasswordChanged}
-                    placeholder="Password"
-                    type="password"
-                    id="password"
-                    value={this.state.password}
-                    invalid={!errors.password}
-                  />
-                  <FormFeedback>At least 3 characters</FormFeedback>
-                </FormGroup>
-                <Button color="primary" onClick={this.handleSubmit}>
-                  Login
-                </Button>
-              </Form>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              {error &&
-                <Alert color="warning" error>
-                  Es ist ein Fehler aufgetreten!
-                </Alert>}
+                <Card>
+                    <CardHeader><h1>Welcome to the bank of Rapperswil</h1></CardHeader>
+                    <CardBody>
+                        <Form>
+                            <FormGroup>
+                                <Label for="username">Username</Label>
+                                <Input
+                                    onChange={this.handleLoginChanged}
+                                    placeholder="Username"
+                                    id="username"
+                                    value={this.state.login}
+                                    invalid={!errors.login}
+                                />
+                                <FormFeedback>Please specify your login, at least three characters.</FormFeedback>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label for="password">Password</Label>
+                                <Input
+                                    onChange={this.handlePasswordChanged}
+                                    placeholder="Password"
+                                    type="password"
+                                    id="password"
+                                    value={this.state.password}
+                                    invalid={!errors.password}
+                                />
+                                <FormFeedback>Please specify your password, at least three characters.</FormFeedback>
+                            </FormGroup>
+                            <Button color="primary" onClick={this.handleSubmit} disabled={!formValid}>
+                                Login
+                            </Button>
+                            {error &&
+                            <Alert color="warning" error>
+                                An error occurred!
+                            </Alert>}
+                        </Form>
+                    </CardBody>
+                </Card>
             </Col>
           </Row>
         </Container>
