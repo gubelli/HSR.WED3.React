@@ -2,13 +2,16 @@
 
 import React from 'react';
 import {Button, Card, CardBody, CardHeader, Form, FormFeedback, FormGroup, Input, Label} from "reactstrap";
-import type {Account, AccountNr} from "../../services/api";
+import type {Account, AccountNr, TransferResult} from "../../services/api";
 import * as api from "../../services/api";
 
 type State = {
     token: string,
     account: Account
 }
+
+const TARGET_ACCOUNT_INVALID_FORMAT = "Please specify the target account number.";
+const TARGET_ACCOUNT_UNKNOWN = "Unknown account number specified.";
 
 class Payment extends React.Component<{}, State> {
     constructor (props: any) {
@@ -21,7 +24,9 @@ class Payment extends React.Component<{}, State> {
                 amount: 0
             },
             targetAccount: null,
-            targetAccountNr: 0,
+            targetAccountNr: '',
+            targetDisplayText: TARGET_ACCOUNT_INVALID_FORMAT,
+            transactionIsSucceeded: false,
             amount: 0,
             error: undefined
         };
@@ -39,13 +44,33 @@ class Payment extends React.Component<{}, State> {
 
     getTargetAccount = (accountNr: AccountNr, token: string) => {
         api.getAccount(accountNr, token)
-            .then( (targetAccount) => this.setState({targetAccount}))
-            .catch(error => this.setState ({error}))
+            .then( (targetAccount: Account) => {
+                this.setState({targetAccount,
+                    targetDisplayText: targetAccount.owner.firstname + ' ' + targetAccount.owner.lastname});
+            })
+            .catch(() => {
+                this.setState ({targetDisplayText: TARGET_ACCOUNT_UNKNOWN, targetAccount: null});
+            })
+    };
+
+    createTransaction = (target: AccountNr, amount: number, token: string) => {
+        api.transfer(target, amount, token)
+            .then((result: TransferResult) => {
+                this.setState (prevState => ({
+                    account: {
+                        ...prevState.account,
+                        amount: result.total
+                    },
+                    transactionIsSucceeded: true
+                }))
+
+            })
     };
 
     handleTargetChanged = (event: Event) => {
         if (event.target instanceof HTMLInputElement) {
-            this.setState ({target: event.target.value});
+            this.setState ({targetAccountNr: event.target.value});
+            this.validateTargetAccount(event.target.value);
         }
     };
 
@@ -57,27 +82,45 @@ class Payment extends React.Component<{}, State> {
 
     handleSubmit = (event: Event) => {
         event.preventDefault ();
-        console.log("Form submitted");
+        this.createTransaction(this.state.targetAccountNr, this.state.amount, this.state.token);
     };
 
-    validate = (target: number, amount: number) => {
+    handleStartOver = () => {
+        this.setState ({
+            targetAccount: null,
+            targetAccountNr: '',
+            transactionIsSucceeded: false,
+            amount: 0,
+            targetDisplayText: TARGET_ACCOUNT_INVALID_FORMAT
+        })
+    };
+
+    validate = (amount: number) => {
         return {
-            target: target > 10000,
             amount: amount >= 0.05,
         };
     };
 
-    render () {
+    validateTargetAccount = (targetAccountNr: AccountNr) => {
+        if(targetAccountNr.length === 7 && targetAccountNr !== this.state.account.accountNr){
+            this.getTargetAccount(targetAccountNr, this.state.token);
+        }else{
+            this.setState ({targetDisplayText: TARGET_ACCOUNT_INVALID_FORMAT, targetAccount: null});
+        }
+    };
 
-        const errors = this.validate(this.state.target, this.state.amount);
+    render ()
+    {
 
-        const formValid = errors.amount & errors.target;
+        const errors = this.validate(this.state.amount);
+
+        const formValid = errors.amount & this.state.targetAccount !== null;
 
         return (
             <Card>
                 <CardHeader><h1>New payment</h1></CardHeader>
                 <CardBody>
-                    <Form>
+                    <Form hidden={this.state.transactionIsSucceeded}>
                         <FormGroup>
                             <Label for="from">From</Label>
                             <Input
@@ -90,13 +133,15 @@ class Payment extends React.Component<{}, State> {
                             <Label for="target">To</Label>
                             <Input
                                 onChange={this.handleTargetChanged}
-                                type="text"
+                                type="number"
                                 placeholder="Target account number"
                                 id="target"
-                                value={this.state.target}
-                                invalid={!errors.target}
+                                value={this.state.targetAccountNr}
+                                invalid={this.state.targetAccount === null}
+                                valid={this.state.targetAccount !== null}
                             />
-                            <FormFeedback>Please specify the target account number.</FormFeedback>
+                            <FormFeedback>{this.state.targetDisplayText}</FormFeedback>
+                            <FormFeedback valid>{this.state.targetDisplayText}</FormFeedback>
                         </FormGroup>
                         <FormGroup>
                             <Label for="target">Amount [CHF]</Label>
@@ -104,9 +149,11 @@ class Payment extends React.Component<{}, State> {
                                 onChange={this.handleAmountChanged}
                                 type="number"
                                 placeholder="Amount in CHF"
+                                min="0"
                                 id="amount"
                                 value={this.state.amount}
                                 invalid={!errors.amount}
+                                valid={errors.amount}
                             />
                             <FormFeedback>Please specify the amount.</FormFeedback>
                         </FormGroup>
@@ -114,6 +161,13 @@ class Payment extends React.Component<{}, State> {
                             Pay
                         </Button>
                     </Form>
+                    <div hidden={!this.state.transactionIsSucceeded}>
+                        <p>Transaction to {this.state.targetAccountNr} succeeded!</p>
+                        <p>New balance {this.state.account.amount.toFixed(2)} CHF</p>
+                        <Button color="primary" onClick={this.handleStartOver}>
+                            Start over
+                        </Button>
+                    </div>
                 </CardBody>
             </Card>
         );

@@ -79,7 +79,7 @@ class Login extends React.Component<Props, *> {
 
     const errors = this.validate (this.state.login, this.state.password);
 
-    const formValid = errors.password & errors.login;
+    const formValid = !Object.keys(errors).some(x => !errors[x]);
 
     if (redirectToReferrer) {
       return <Redirect to={from} />;
