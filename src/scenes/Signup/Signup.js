@@ -29,6 +29,13 @@ class Signup extends React.Component<{}, *> {
         passwordConfirmation: '',
         error: null,
         redirectToReferrer: false,
+        touched: {
+            login: false,
+            firstname: false,
+            lastname: false,
+            password: false,
+            passwordConfirmation: false
+        }
     };
 
     handleLoginChanged = (event: Event) => {
@@ -77,6 +84,11 @@ class Signup extends React.Component<{}, *> {
             .catch (error => this.setState ({error}));
     };
 
+    handleBlur = (field) => (evt) => {
+        this.setState({
+            touched: { ...this.state.touched, [field]: true },
+        });
+    };
 
     validate = (login: string, password: string, passwordConfirmation: string, firstname: string, lastname: string) => {
         return {
@@ -102,7 +114,14 @@ class Signup extends React.Component<{}, *> {
             this.state.firstname,
             this.state.lastname);
 
-        const formValid = errors.login & errors.password & errors.passwordConfirmation & errors.firstname & errors.lastname;
+        const shouldShowError = (field) => {
+            const hasError = !errors[field];
+            const shouldShow = this.state.touched[field];
+            return hasError ? shouldShow : false;
+        };
+
+
+        const formValid = !Object.keys(errors).some(x => !errors[x]);
 
         return (
             <div>
@@ -117,9 +136,11 @@ class Signup extends React.Component<{}, *> {
                                             <Label for="firstname">Firstname</Label>
                                             <Input
                                                 onChange={this.handleFirstNameChanged}
+                                                onBlur={this.handleBlur('firstname')}
                                                 placeholder="First name"
                                                 value={this.state.firstname}
-                                                invalid={!errors.firstname}
+                                                invalid={shouldShowError('firstname')}
+                                                valid={errors.firstname}
                                             />
                                             <FormFeedback>Please specify your first name.</FormFeedback>
                                         </FormGroup>
@@ -127,9 +148,11 @@ class Signup extends React.Component<{}, *> {
                                             <Label for="lastname">Lastname</Label>
                                             <Input
                                                 onChange={this.handleLastNameChanged}
+                                                onBlur={this.handleBlur('lastname')}
                                                 placeholder="Last name"
                                                 value={this.state.lastname}
-                                                invalid={!errors.lastname}
+                                                invalid={shouldShowError('lastname')}
+                                                valid={errors.lastname}
                                             />
                                             <FormFeedback>Please specify your last name.</FormFeedback>
                                         </FormGroup>
@@ -137,9 +160,11 @@ class Signup extends React.Component<{}, *> {
                                             <Label for="login">User name</Label>
                                             <Input
                                                 onChange={this.handleLoginChanged}
+                                                onBlur={this.handleBlur('login')}
                                                 placeholder="User"
                                                 value={this.state.login}
-                                                invalid={!errors.login}
+                                                invalid={shouldShowError('login')}
+                                                valid={errors.login}
                                             />
                                             <FormFeedback>Please specify your login, at least three characters.</FormFeedback>
                                         </FormGroup>
@@ -147,11 +172,13 @@ class Signup extends React.Component<{}, *> {
                                             <Label for="password">Password</Label>
                                             <Input
                                                 onChange={this.handlePasswordChanged}
+                                                onBlur={this.handleBlur('password')}
                                                 placeholder="Password"
                                                 type="password"
                                                 id="password"
                                                 value={this.state.password}
-                                                invalid={!errors.password}
+                                                invalid={shouldShowError('password')}
+                                                valid={errors.password}
                                             />
                                             <FormFeedback>Please specify your password, at least 3 characters</FormFeedback>
                                         </FormGroup>
@@ -159,11 +186,13 @@ class Signup extends React.Component<{}, *> {
                                             <Label for="confirmpassword">Confirm Password</Label>
                                             <Input
                                                 onChange={this.handlePasswordConfirmationChanged}
+                                                onBlur={this.handleBlur('passwordConfirmation')}
                                                 placeholder="Password"
                                                 type="password"
                                                 id="confirmpassword"
                                                 value={this.state.passwordConfirmation}
-                                                invalid={!errors.passwordConfirmation}
+                                                invalid={shouldShowError('passwordConfirmation')}
+                                                valid={errors.passwordConfirmation}
                                             />
                                             <FormFeedback>Please confirm your password</FormFeedback>
                                         </FormGroup>

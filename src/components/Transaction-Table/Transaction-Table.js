@@ -1,19 +1,27 @@
 // @flow
 
 import React from 'react';
-import {Card, CardBody, CardHeader, Table} from "reactstrap";
+import {Button, Card, CardBody, CardHeader, Table} from "reactstrap";
+import {withRouter} from "react-router-dom";
 
-class Transaction extends React.Component<{}, *> {
+class TransactionTable extends React.Component<{}, *> {
 
     render () {
 
         const rows =
             this.props.transactions.map((transaction, index ) => this.renderTransactionRow(transaction, index));
 
+        const LinkButton = withRouter(({ history }) => (
+            <Button color="primary" onClick={() => { history.push('/transactions') }}>
+                All transactions
+            </Button>
+        ));
+
         return (
             <Card>
-                <CardHeader><h1>Latest transactions</h1></CardHeader>
+                <CardHeader><h1>{this.props.title}</h1></CardHeader>
                 <CardBody>
+                    {this.props.children}
                     <Table>
                         <thead>
                         <tr>
@@ -27,6 +35,10 @@ class Transaction extends React.Component<{}, *> {
                         {rows}
                         </tbody>
                     </Table>
+                    {
+                        this.props.button ? <LinkButton/> : ""
+                    }
+
                 </CardBody>
             </Card>
         );
@@ -44,4 +56,4 @@ class Transaction extends React.Component<{}, *> {
     };
 }
 
-export default Transaction;
+export default TransactionTable;

@@ -28,7 +28,11 @@ class Payment extends React.Component<{}, State> {
             targetDisplayText: TARGET_ACCOUNT_INVALID_FORMAT,
             transactionIsSucceeded: false,
             amount: 0,
-            error: undefined
+            error: undefined,
+            touched: {
+                amount: false,
+                targetAccountNr: false
+            }
         };
     }
 
@@ -62,8 +66,8 @@ class Payment extends React.Component<{}, State> {
                         amount: result.total
                     },
                     transactionIsSucceeded: true
-                }))
-
+                }));
+                this.props.onNewPayment(result);
             })
     };
 
@@ -95,6 +99,13 @@ class Payment extends React.Component<{}, State> {
         })
     };
 
+
+    handleBlur = (field) => (evt) => {
+        this.setState({
+            touched: { ...this.state.touched, [field]: true },
+        });
+    };
+
     validate = (amount: number) => {
         return {
             amount: amount >= 0.05,
@@ -111,7 +122,6 @@ class Payment extends React.Component<{}, State> {
 
     render ()
     {
-
         const errors = this.validate(this.state.amount);
 
         const formValid = errors.amount & this.state.targetAccount !== null;
@@ -133,11 +143,12 @@ class Payment extends React.Component<{}, State> {
                             <Label for="target">To</Label>
                             <Input
                                 onChange={this.handleTargetChanged}
+                                onBlur={this.handleBlur('targetAccountNr')}
                                 type="number"
                                 placeholder="Target account number"
                                 id="target"
                                 value={this.state.targetAccountNr}
-                                invalid={this.state.targetAccount === null}
+                                invalid={this.state.targetAccount === null && this.state.touched.targetAccountNr}
                                 valid={this.state.targetAccount !== null}
                             />
                             <FormFeedback>{this.state.targetDisplayText}</FormFeedback>
@@ -147,12 +158,13 @@ class Payment extends React.Component<{}, State> {
                             <Label for="target">Amount [CHF]</Label>
                             <Input
                                 onChange={this.handleAmountChanged}
+                                onBlur={this.handleBlur('amount')}
                                 type="number"
                                 placeholder="Amount in CHF"
                                 min="0"
                                 id="amount"
                                 value={this.state.amount}
-                                invalid={!errors.amount}
+                                invalid={!errors.amount && this.state.touched.amount}
                                 valid={errors.amount}
                             />
                             <FormFeedback>Please specify the amount.</FormFeedback>

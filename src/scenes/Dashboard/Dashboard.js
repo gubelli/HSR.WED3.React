@@ -2,8 +2,8 @@
 
 import React from 'react';
 import {Col, Container, Row} from "reactstrap";
-import Payment from "../../components/payment/payment";
-import Transaction from "../../components/transaction/transaction";
+import Payment from "../../components/Payment/Payment";
+import TransactionTable from "../../components/Transaction-Table/Transaction-Table";
 import * as api from "../../services/api";
 
 const COUNT_LATEST_TRANSACTIONS = 3;
@@ -32,12 +32,17 @@ class Dashboard extends React.Component<{}, *> {
             .catch((error) => console.error(error))
     };
 
+    handleNewPayment = () => {
+        this.getTransactions(this.state.token, COUNT_LATEST_TRANSACTIONS);
+    };
+
     render () {
         return (
             <Container fluid>
                 <Row>
-                    <Col><Payment/></Col>
-                    <Col><Transaction transactions={this.state.transactions}/></Col>
+                    <Col><Payment onNewPayment={this.handleNewPayment}/></Col>
+                    <Col><TransactionTable transactions={this.state.transactions}
+                                           title={"Latest transactions"} button={true}/></Col>
                 </Row>
             </Container>
         );

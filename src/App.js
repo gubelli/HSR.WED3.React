@@ -21,9 +21,7 @@ import {Button, Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem} from
 import NavLink from "react-router-dom/es/NavLink";
 import Dashboard from "./scenes/Dashboard/Dashboard";
 import {Redirect} from "react-router";
-
-// TODO: Move to own files
-const AllTransactions = () => <div />;
+import AllTransactions from "./scenes/All-Transactions/All-Transactions";
 
 type State = {
     isAuthenticated: boolean,
