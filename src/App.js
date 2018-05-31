@@ -9,6 +9,8 @@ import {
 
 import Login from './scenes/Login/Login';
 import Signup from './scenes/Signup/Signup';
+import AllTransactions from "./scenes/All-Transactions/All-Transactions";
+import Dashboard from "./scenes/Dashboard/Dashboard";
 
 import PrivateRoute from './services/PrivateRoute';
 
@@ -19,9 +21,8 @@ import './App.css';
 import type {User} from './services/api';
 import {Button, Collapse, Nav, Navbar, NavbarBrand, NavbarToggler, NavItem} from "reactstrap";
 import NavLink from "react-router-dom/es/NavLink";
-import Dashboard from "./scenes/Dashboard/Dashboard";
 import {Redirect} from "react-router";
-import AllTransactions from "./scenes/All-Transactions/All-Transactions";
+
 
 type State = {
     isAuthenticated: boolean,
@@ -162,10 +163,6 @@ class App extends React.Component<{}, State> {
                             <Signup {...props} authenticate={this.authenticate} />
                         )}
                     />
-                    {/*
-            The following are protected routes that are only available for logged-in users. We also pass the user and token so 
-            these components can do API calls. PrivateRoute is not part of react-router but our own implementation.
-          */}
                     <PrivateRoute
                         path="/dashboard"
                         isAuthenticated={isAuthenticated}

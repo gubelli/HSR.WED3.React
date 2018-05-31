@@ -29,7 +29,7 @@ class AllTransactions extends React.Component<{}, *> {
     }
 
     getTransactions = (token: string, from: Date, to: Date) => {
-        api.getTransactions(token, from, to)
+        api.getTransactions(token, from, to, 0, 0)
             .then( (result) => {
                 const transactions = result.result;
                 this.setState({transactions});
@@ -53,7 +53,7 @@ class AllTransactions extends React.Component<{}, *> {
         this.setState ({year, month});
 
         const from = new Date(year, month, 1);
-        const to = new Date(year, month + 1, 0);
+        const to = new Date(year, month + 1, 0, 23, 59, 59);
 
         this.getTransactions(this.state.token, from, to);
     };
@@ -63,7 +63,8 @@ class AllTransactions extends React.Component<{}, *> {
             <Container fluid>
                 <Row>
                     <Col>
-                        <TransactionTable transactions={this.state.transactions} title={"All transactions"} button={false}>
+                        <TransactionTable transactions={this.state.transactions}
+                                          title={"All transactions"} button={false}>
                             <h3>Filter</h3>
                             <Form>
                                 <FormGroup row>

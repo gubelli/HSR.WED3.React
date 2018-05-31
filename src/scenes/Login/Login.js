@@ -15,6 +15,7 @@ import {
     FormFeedback, Card, CardHeader, CardBody
 } from 'reactstrap';
 import './Login.css';
+import FormComponent from "../../utils/Form";
 
 export type Props = {
   /* Callback to submit an authentication request to the server */
@@ -32,28 +33,16 @@ export type Props = {
   },
 };
 
-class Login extends React.Component<Props, *> {
+class Login extends FormComponent<Props,*> {
   state = {
     login: '',
     password: '',
     error: undefined,
     redirectToReferrer: false,
-      touched: {
-        login: false,
-          password: false
+      pristine: {
+        login: true,
+          password: true
       }
-  };
-
-  handleLoginChanged = (event: Event) => {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState ({login: event.target.value});
-    }
-  };
-
-  handlePasswordChanged = (event: Event) => {
-    if (event.target instanceof HTMLInputElement) {
-      this.setState ({password: event.target.value});
-    }
   };
 
   handleSubmit = (event: Event) => {
@@ -67,12 +56,6 @@ class Login extends React.Component<Props, *> {
       }
     });
   };
-
-    handleBlur = (field) => (evt) => {
-        this.setState({
-            touched: { ...this.state.touched, [field]: true },
-        });
-    };
 
   validate = (login: string, password: string) => {
     return {
@@ -91,7 +74,7 @@ class Login extends React.Component<Props, *> {
 
     const shouldShowError = (field) => {
         const hasError = !errors[field];
-        const shouldShow = this.state.touched[field];
+        const shouldShow = !this.state.pristine[field];
         return hasError ? shouldShow : false;
     };
 
@@ -111,12 +94,11 @@ class Login extends React.Component<Props, *> {
                     <CardBody>
                         <Form>
                             <FormGroup>
-                                <Label for="username">Username</Label>
+                                <Label for="login">User name</Label>
                                 <Input
-                                    onChange={this.handleLoginChanged}
-                                    onBlur={this.handleBlur('login')}
-                                    placeholder="Username"
-                                    id="username"
+                                    id="login"
+                                    onChange={this.handleChangeEvent}
+                                    placeholder="User"
                                     value={this.state.login}
                                     invalid={shouldShowError('login')}
                                     valid={errors.login}
@@ -126,11 +108,10 @@ class Login extends React.Component<Props, *> {
                             <FormGroup>
                                 <Label for="password">Password</Label>
                                 <Input
-                                    onChange={this.handlePasswordChanged}
-                                    onBlur={this.handleBlur('password')}
+                                    id="password"
+                                    onChange={this.handleChangeEvent}
                                     placeholder="Password"
                                     type="password"
-                                    id="password"
                                     value={this.state.password}
                                     invalid={shouldShowError('password')}
                                     valid={errors.password}

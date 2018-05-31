@@ -4,16 +4,12 @@ import React from 'react';
 import {Button, Card, CardBody, CardHeader, Form, FormFeedback, FormGroup, Input, Label} from "reactstrap";
 import type {Account, AccountNr, TransferResult} from "../../services/api";
 import * as api from "../../services/api";
-
-type State = {
-    token: string,
-    account: Account
-}
+import FormComponent from "../../utils/Form";
 
 const TARGET_ACCOUNT_INVALID_FORMAT = "Please specify the target account number.";
 const TARGET_ACCOUNT_UNKNOWN = "Unknown account number specified.";
 
-class Payment extends React.Component<{}, State> {
+class Payment extends FormComponent<{}, *> {
     constructor (props: any) {
         super(props);
         const token = localStorage.getItem ('token');
@@ -29,9 +25,9 @@ class Payment extends React.Component<{}, State> {
             transactionIsSucceeded: false,
             amount: 0,
             error: undefined,
-            touched: {
-                amount: false,
-                targetAccountNr: false
+            pristine: {
+                amount: true,
+                targetAccountNr: true
             }
         };
     }
@@ -72,15 +68,20 @@ class Payment extends React.Component<{}, State> {
     };
 
     handleTargetChanged = (event: Event) => {
-        if (event.target instanceof HTMLInputElement) {
-            this.setState ({targetAccountNr: event.target.value});
-            this.validateTargetAccount(event.target.value);
-        }
-    };
+        const target = event.target;
+        const name = target.id;
 
-    handleAmountChanged = (event: Event) => {
-        if (event.target instanceof HTMLInputElement) {
-            this.setState ({amount: event.target.value});
+        if (target instanceof HTMLInputElement) {
+            const value = target.value;
+            this.setState (prevState => ({
+                pristine: {
+                    ...prevState.pristine,
+                    [name]: false
+                },
+                targetAccountNr: value
+            }));
+
+            this.validateTargetAccount(value);
         }
     };
 
@@ -95,15 +96,12 @@ class Payment extends React.Component<{}, State> {
             targetAccountNr: '',
             transactionIsSucceeded: false,
             amount: 0,
-            targetDisplayText: TARGET_ACCOUNT_INVALID_FORMAT
+            targetDisplayText: TARGET_ACCOUNT_INVALID_FORMAT,
+            pristine: {
+                amount: true,
+                targetAccountNr: true
+            }
         })
-    };
-
-
-    handleBlur = (field) => (evt) => {
-        this.setState({
-            touched: { ...this.state.touched, [field]: true },
-        });
     };
 
     validate = (amount: number) => {
@@ -140,15 +138,14 @@ class Payment extends React.Component<{}, State> {
                             />
                         </FormGroup>
                         <FormGroup>
-                            <Label for="target">To</Label>
+                            <Label for="targetAccountNr">To</Label>
                             <Input
+                                id="targetAccountNr"
                                 onChange={this.handleTargetChanged}
-                                onBlur={this.handleBlur('targetAccountNr')}
                                 type="number"
                                 placeholder="Target account number"
-                                id="target"
                                 value={this.state.targetAccountNr}
-                                invalid={this.state.targetAccount === null && this.state.touched.targetAccountNr}
+                                invalid={this.state.targetAccount === null && !this.state.pristine.targetAccountNr}
                                 valid={this.state.targetAccount !== null}
                             />
                             <FormFeedback>{this.state.targetDisplayText}</FormFeedback>
@@ -157,14 +154,13 @@ class Payment extends React.Component<{}, State> {
                         <FormGroup>
                             <Label for="target">Amount [CHF]</Label>
                             <Input
-                                onChange={this.handleAmountChanged}
-                                onBlur={this.handleBlur('amount')}
+                                id="amount"
+                                onChange={this.handleChangeEvent}
                                 type="number"
                                 placeholder="Amount in CHF"
                                 min="0"
-                                id="amount"
                                 value={this.state.amount}
-                                invalid={!errors.amount && this.state.touched.amount}
+                                invalid={!errors.amount && !this.state.pristine.amount}
                                 valid={errors.amount}
                             />
                             <FormFeedback>Please specify the amount.</FormFeedback>

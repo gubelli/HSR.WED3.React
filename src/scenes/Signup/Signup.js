@@ -19,8 +19,9 @@ import {
 
 import {signup} from '../../services/api';
 import './Signup.css';
+import FormComponent from "../../utils/Form";
 
-class Signup extends React.Component<{}, *> {
+class Signup extends FormComponent<{},*> {
     state = {
         login: '',
         firstname: '',
@@ -29,42 +30,12 @@ class Signup extends React.Component<{}, *> {
         passwordConfirmation: '',
         error: null,
         redirectToReferrer: false,
-        touched: {
+        pristine: {
             login: false,
             firstname: false,
             lastname: false,
             password: false,
             passwordConfirmation: false
-        }
-    };
-
-    handleLoginChanged = (event: Event) => {
-        if (event.target instanceof HTMLInputElement) {
-            this.setState ({login: event.target.value});
-        }
-    };
-
-    handleFirstNameChanged = (event: Event) => {
-        if (event.target instanceof HTMLInputElement) {
-            this.setState ({firstname: event.target.value});
-        }
-    };
-
-    handleLastNameChanged = (event: Event) => {
-        if (event.target instanceof HTMLInputElement) {
-            this.setState ({lastname: event.target.value});
-        }
-    };
-
-    handlePasswordChanged = (event: Event) => {
-        if (event.target instanceof HTMLInputElement) {
-            this.setState ({password: event.target.value});
-        }
-    };
-
-    handlePasswordConfirmationChanged = (event: Event) => {
-        if (event.target instanceof  HTMLInputElement) {
-            this.setState ({passwordConfirmation: event.target.value});
         }
     };
 
@@ -82,12 +53,6 @@ class Signup extends React.Component<{}, *> {
                 });
             })
             .catch (error => this.setState ({error}));
-    };
-
-    handleBlur = (field) => (evt) => {
-        this.setState({
-            touched: { ...this.state.touched, [field]: true },
-        });
     };
 
     validate = (login: string, password: string, passwordConfirmation: string, firstname: string, lastname: string) => {
@@ -116,7 +81,7 @@ class Signup extends React.Component<{}, *> {
 
         const shouldShowError = (field) => {
             const hasError = !errors[field];
-            const shouldShow = this.state.touched[field];
+            const shouldShow = !this.state.pristine[field];
             return hasError ? shouldShow : false;
         };
 
@@ -135,8 +100,8 @@ class Signup extends React.Component<{}, *> {
                                         <FormGroup>
                                             <Label for="firstname">Firstname</Label>
                                             <Input
-                                                onChange={this.handleFirstNameChanged}
-                                                onBlur={this.handleBlur('firstname')}
+                                                id="firstname"
+                                                onChange={this.handleChangeEvent}
                                                 placeholder="First name"
                                                 value={this.state.firstname}
                                                 invalid={shouldShowError('firstname')}
@@ -147,8 +112,8 @@ class Signup extends React.Component<{}, *> {
                                         <FormGroup>
                                             <Label for="lastname">Lastname</Label>
                                             <Input
-                                                onChange={this.handleLastNameChanged}
-                                                onBlur={this.handleBlur('lastname')}
+                                                id="lastname"
+                                                onChange={this.handleChangeEvent}
                                                 placeholder="Last name"
                                                 value={this.state.lastname}
                                                 invalid={shouldShowError('lastname')}
@@ -159,8 +124,8 @@ class Signup extends React.Component<{}, *> {
                                         <FormGroup>
                                             <Label for="login">User name</Label>
                                             <Input
-                                                onChange={this.handleLoginChanged}
-                                                onBlur={this.handleBlur('login')}
+                                                id="login"
+                                                onChange={this.handleChangeEvent}
                                                 placeholder="User"
                                                 value={this.state.login}
                                                 invalid={shouldShowError('login')}
@@ -171,11 +136,10 @@ class Signup extends React.Component<{}, *> {
                                         <FormGroup>
                                             <Label for="password">Password</Label>
                                             <Input
-                                                onChange={this.handlePasswordChanged}
-                                                onBlur={this.handleBlur('password')}
+                                                id="password"
+                                                onChange={this.handleChangeEvent}
                                                 placeholder="Password"
                                                 type="password"
-                                                id="password"
                                                 value={this.state.password}
                                                 invalid={shouldShowError('password')}
                                                 valid={errors.password}
@@ -183,13 +147,12 @@ class Signup extends React.Component<{}, *> {
                                             <FormFeedback>Please specify your password, at least 3 characters</FormFeedback>
                                         </FormGroup>
                                         <FormGroup>
-                                            <Label for="confirmpassword">Confirm Password</Label>
+                                            <Label for="passwordConfirmation">Confirm Password</Label>
                                             <Input
-                                                onChange={this.handlePasswordConfirmationChanged}
-                                                onBlur={this.handleBlur('passwordConfirmation')}
+                                                id="passwordConfirmation"
+                                                onChange={this.handleChangeEvent}
                                                 placeholder="Password"
                                                 type="password"
-                                                id="confirmpassword"
                                                 value={this.state.passwordConfirmation}
                                                 invalid={shouldShowError('passwordConfirmation')}
                                                 valid={errors.passwordConfirmation}
