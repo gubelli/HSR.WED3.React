@@ -28,6 +28,7 @@ type State = {
     isAuthenticated: boolean,
     token: ?string,
     user: ?User,
+    collapsed: boolean
 };
 
 class App extends React.Component<{}, State> {
@@ -40,17 +41,16 @@ class App extends React.Component<{}, State> {
                 isAuthenticated: true,
                 token,
                 user: JSON.parse (user),
+                collapsed: true
             };
         } else {
             this.state = {
                 isAuthenticated: false,
                 token: undefined,
                 user: undefined,
+                collapsed: true
             };
         }
-        this.state = {
-            collapsed: true
-        };
     }
 
     authenticate = (
