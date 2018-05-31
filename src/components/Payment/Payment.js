@@ -106,7 +106,8 @@ class Payment extends FormComponent<{}, *> {
 
     validate = (amount: number) => {
         return {
-            amount: amount >= 0.05 && amount <= this.state.account.amount,
+            amount: amount >= 0.05 && amount <= this.state.account.amount &&
+                    RegExp(/^\d*?(\.\d[0,5]?)?$/).test(amount.toString()),
         };
     };
 
@@ -164,7 +165,8 @@ class Payment extends FormComponent<{}, *> {
                                 invalid={!errors.amount && !this.state.pristine.amount}
                                 valid={errors.amount}
                             />
-                            <FormFeedback>Please specify an amount between CHF 0.05 and CHF {this.state.account.amount.toFixed(2)}</FormFeedback>
+                            <FormFeedback>Please specify an amount between CHF 0.05 and
+                                CHF {this.state.account.amount.toFixed(2)} in CHF 0.05 steps</FormFeedback>
                         </FormGroup>
                         <Button color="primary" onClick={this.handleSubmit} disabled={!formValid}>
                             Pay
