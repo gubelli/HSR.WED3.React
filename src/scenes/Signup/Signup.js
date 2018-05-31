@@ -31,11 +31,11 @@ class Signup extends FormComponent<{},*> {
         error: null,
         redirectToReferrer: false,
         pristine: {
-            login: false,
-            firstname: false,
-            lastname: false,
-            password: false,
-            passwordConfirmation: false
+            login: true,
+            firstname: true,
+            lastname: true,
+            password: true,
+            passwordConfirmation: true
         }
     };
 

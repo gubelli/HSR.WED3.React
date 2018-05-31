@@ -94,7 +94,7 @@ class App extends React.Component<{}, State> {
                 return (
                     <div>
                         <Navbar color="faded" light expand="md">
-                            <NavbarBrand>WED3 Testat</NavbarBrand>
+                            <NavbarBrand>WED3 Attestation</NavbarBrand>
                             <NavbarToggler onClick={this.toggleNavbar} />
                             <Collapse isOpen={!collapsed} navbar>
                             <Nav>
@@ -121,7 +121,7 @@ class App extends React.Component<{}, State> {
                return (
                    <div>
                        <Navbar color="faded" light expand="md">
-                           <NavbarBrand>WED3 Testat</NavbarBrand>
+                           <NavbarBrand>WED3 Attestation</NavbarBrand>
                            <NavbarToggler onClick={this.toggleNavbar} />
                            <Collapse isOpen={!collapsed} navbar>
                            <Nav>
